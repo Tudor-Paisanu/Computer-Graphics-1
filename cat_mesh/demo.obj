@@ -1,0 +1,26 @@
+# Pyramid with 5 vertices, 4 triangular faces, and a base (split into 2 triangles)
+
+# Vertices (after 45° rotation around Y-axis)
+v 7.071   10.0  7.071    # 1 - Apex (rotated)
+v 7.071   0.0  21.213    # 2 - Base vertex 1 (rotated)
+v 7.071   0.0  -7.071    # 3 - Base vertex 2 (rotated)
+v -7.071  0.0  -7.071    # 4 - Base vertex 3 (rotated)
+v -7.071  0.0  21.213    # 5 - Base vertex 4 (rotated)
+
+# Normals (facing outward)
+vn  0.577  0.577  0.577    # 1 - Front-right face
+vn  0.577  0.577 -0.577    # 2 - Back-right face
+vn -0.577  0.577 -0.577    # 3 - Back-left face
+vn -0.577  0.577  0.577    # 4 - Front-left face
+vn  0.0   -1.0   0.0       # 5 - Base face (downward)
+
+# Faces (triangle definitions)
+f 1//1 2//1 3//1           # Front-right
+f 1//2 3//2 4//2           # Back-right
+f 1//3 4//3 5//3           # Back-left
+f 1//4 5//4 2//4           # Front-left
+
+# Base (split into two triangles, flipped winding for better lighting)
+f 4//5 3//5 2//5
+f 5//5 4//5 2//5
+

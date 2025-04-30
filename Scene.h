@@ -1,18 +1,22 @@
 #pragma once
 
-#include "Vector.h"
+#include <memory>
 #include "Objects.h"
+#include "Vector.h"
+
+
 
 class Scene{
     public:
-        std::vector<Sphere> objects;
+        std::vector<std::shared_ptr<Geometry>> objects;
         Camera cmr;
         Vector S;
         double I;
         int max_ray_Depth;
-        inline Scene(Camera cmr1, Vector S1, double I1 = 100000.0, std::vector<Sphere> objs = {}, int mx1 = 5) : cmr(cmr1), S(S1), I(I1), objects(objs), max_ray_Depth(mx1) {}
-        void add_object(Sphere s); 
-        bool intersect(Ray r, Intersection &int_info);
+        bool bIndirect_Lighting = true;
+        inline Scene(Camera cmr1, Vector S1, double I1 = 99900.0, std::vector<std::shared_ptr<Geometry>> objs = {}, int mx1 = 3) : cmr(cmr1), S(S1), I(I1), objects(objs), max_ray_Depth(mx1) {}
+        void add_object(std::shared_ptr<Geometry> obj); 
+        bool intersect(const Ray& r, Intersection &int_info);
         std::vector<unsigned char> take_picture();
-        Vector get_colour(Ray& ray, int n);
+        Vector get_colour(const Ray& ray, int n);
     };

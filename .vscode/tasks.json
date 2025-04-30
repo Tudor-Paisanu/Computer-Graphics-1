@@ -5,11 +5,12 @@
             "label": "C/C++: g++.exe build active file",
             "command": "C:\\Strawberry\\c\\bin\\g++.exe",
             "args": [
+                "-fopenmp",
                 "-fdiagnostics-color=always",
                 "-g",
                 "*.cpp",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${workspaceFolder}/main.exe"
             ],
             "options": {
                 "cwd": "${fileDirname}"

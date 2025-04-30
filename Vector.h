@@ -7,8 +7,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define EPSILON 1e-5
+#define EPSILON 1e-8
 #define GAMMA 2.2
+
 
 class Vector {
     public:
@@ -29,6 +30,13 @@ class Vector {
             data[1] /= n;
             data[2] /= n;
         }
+
+        int get_longest() {
+            if (data[0] > data[1] && data[0] > data[2]) return 0;
+            if (data[1] > data[2]) return 1;
+            return 2;
+        }
+
         double operator[](int i) const { return data[i]; };
         double& operator[](int i) { return data[i]; };
         double data[3];
@@ -61,3 +69,8 @@ class Vector {
     inline Vector comp_wise_mult(const Vector& a, const Vector& b) {
         return Vector(a[0] * b[0], a[1] * b[1], a[2] * b[2]);
     }
+
+    inline Vector comp_wise_div(const Vector& a, const Vector& b) {
+        return Vector(a[0] / b[0], a[1] / b[1], a[2] / b[2]);
+    }
+
