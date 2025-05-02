@@ -3,7 +3,7 @@
 #include "Vector.h"
 
 
-std::mt19937 gen(12345);
+std::default_random_engine gen(12345);
 std::uniform_real_distribution<double> unif(0.0, 1.0);
 
 void boxMuller(double& z0, double& z1) {

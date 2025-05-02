@@ -6,7 +6,7 @@ class Ray {
     public:
         Vector O, u;
         explicit Ray(Vector O1 = Vector(0,0,0), Vector u1 =  Vector(0,0,0)): O(O1), u(u1) {}
-        double create_ray(Vector S, Vector D); // Makes this ray to be from S to D and returns the distance between S,D
+        double create_ray(Vector S, Vector D); 
    };
 
 class Intersection{
@@ -25,7 +25,6 @@ class Camera{
 		int W, H, K;
 		Camera(Vector Q1, double a1, int W1, int H1, int K1 = 32): Q(Q1), a(a1), W(W1), H(H1), K(K1) {}
 		Ray ray_from_pixel(int i, int j);
-		std::vector<Ray> cast_rays();
 	};
 
 enum Material {
@@ -57,7 +56,7 @@ class TriangleIndices {
     
 class Bbox {
     public:
-        Bbox(Vector min = Vector(std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()), Vector max = Vector(-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity())) : Bmin(min), Bmax(max) {};
+        Bbox(Vector min = Vector(INF, INF, INF), Vector max = Vector(-INF, -INF, -INF)) : Bmin(min), Bmax(max) {};
         bool intersect(const Ray& r, double& t);
         Vector Bmin, Bmax;
 };
@@ -85,7 +84,7 @@ class TriangleMesh : virtual public Geometry {
         void compute_bbox(Bbox& bx, int start, int end);
         void compute_BVH(BVH* node, int start, int end);
         void set_BVH();
-        void transform(const Vector& s, const Vector& t);
+        void transform(const double s, const Vector& t);
         std::vector<TriangleIndices> indices;
         std::vector<Vector> vertices;
         std::vector<Vector> normals;

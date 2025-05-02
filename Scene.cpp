@@ -9,7 +9,7 @@ void Scene :: add_object(std::shared_ptr<Geometry> obj) {
 
 bool Scene :: intersect(const Ray& r, Intersection& int_info) {
     Intersection best_int;
-    best_int.t = std::numeric_limits<double>::infinity();
+    best_int.t = INF;
 
     for(int i = 0; i < objects.size(); i++) {
         Intersection current_int;
@@ -105,6 +105,7 @@ Vector Scene :: get_colour(const Ray &initial_Ray, int depth){
                 color = color + comp_wise_mult(objects[current_int.obj_id] -> albedo, get_colour(randomRay, depth - 1));
             }        
             
+
             return color;
             
         }
@@ -118,17 +119,15 @@ Vector Scene :: get_colour(const Ray &initial_Ray, int depth){
 
 std::vector<unsigned char> Scene :: take_picture() {
 
-    std::vector<Ray> rays = cmr.cast_rays();
     std::vector<unsigned char> image(cmr.W * cmr.H * 3, 0);
     Vector color;
 
-    #pragma omp parallel for schedule(dynamic, 1)
-
+#pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < cmr.H; i++) {
         for (int j = 0; j < cmr.W; j++) {
              double r = 0, g = 0, b = 0;
              for(int k = 0; k < cmr.K; k++) {
-                Vector color = get_colour(rays[i * cmr.W + j], max_ray_Depth);
+                Vector color = get_colour(cmr.ray_from_pixel(i, j), max_ray_Depth);
                 r += color[0];
                 g += color[1];
                 b += color[2];

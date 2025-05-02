@@ -9,6 +9,7 @@
 
 #define EPSILON 1e-8
 #define GAMMA 2.2
+#define INF std::numeric_limits<double>::infinity()
 
 
 class Vector {
@@ -68,9 +69,5 @@ class Vector {
     
     inline Vector comp_wise_mult(const Vector& a, const Vector& b) {
         return Vector(a[0] * b[0], a[1] * b[1], a[2] * b[2]);
-    }
-
-    inline Vector comp_wise_div(const Vector& a, const Vector& b) {
-        return Vector(a[0] / b[0], a[1] / b[1], a[2] / b[2]);
     }
 

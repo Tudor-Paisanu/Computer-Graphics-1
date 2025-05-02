@@ -22,23 +22,11 @@ Ray Camera :: ray_from_pixel(int i, int j) {
     double x = 0, y = 0;
     boxMuller(x, y);
     x += j; y+= H - i - 1;
-    Vector V = Vector((x + 0.5 - W / 2), (y + 0.5 - H / 2), (- W / (2 * tan(a / 2))));
+    Vector V = Vector(Q[0] + x + 0.5 - W / 2 , Q[1] + y + 0.5 - H / 2, Q[2] - W / (2 * tan(a / 2)));
     V.normalize();
     return Ray(Q, V);  
 }
 
-std::vector<Ray> Camera :: cast_rays() {
-    std::vector<Ray> rays;
-    rays.reserve(W * H);
-    for(int i = 0; i < H; i++){
-        for(int j = 0; j < W; j++) {
-            Ray ray = ray_from_pixel(i, j);
-            rays.push_back(ray);
-        }    
-    }
-            
-    return rays;
-}
 
 // Sphere
 
@@ -63,25 +51,20 @@ void Sphere :: get_intersection_info(const Ray&r, Intersection& int_info) {
 // Bbox
 
 bool Bbox :: intersect(const Ray& r, double& t) {
-    double tmin = -std::numeric_limits<double>::infinity();
-    double tmax =  std::numeric_limits<double>::infinity();
+    double tmin = -INF;
+    double tmax =  INF;
 
     for (int i = 0; i < 3; ++i) {
-        if (std::abs(r.u[i]) < EPSILON) {
-            if (r.O[i] < Bmin[i] || r.O[i] > Bmax[i])
-                return false;
-        } else {
-            double t0 = (Bmin[i] - r.O[i]) / r.u[i];
-            double t1 = (Bmax[i] - r.O[i]) / r.u[i];
-            if (t0 > t1) std::swap(t0, t1);
-            tmin = std::max(tmin, t0);
-            tmax = std::min(tmax, t1);
-            if (tmin > tmax || tmax < 0) return false;
-        }
+		double t0 = (Bmin[i] - r.O[i]) / r.u[i];
+		double t1 = (Bmax[i] - r.O[i]) / r.u[i];
+		if (t0 > t1) std::swap(t0, t1);
+		tmin = std::max(tmin, t0);
+		tmax = std::min(tmax, t1);
+		if (tmin > tmax) return false;
     }
 
-	if (tmin >= 0) t = tmin;
-	else t = tmax;
+	t = tmin;
+
     return true;
 }
 
@@ -95,23 +78,11 @@ Vector TriangleMesh :: barycenter(int id) {
 }
 
 bool TriangleMesh::intersect_triangle(const Ray& r, Intersection& int_info, int id) {
-    const Vector& A = vertices[indices[id].vtxi];
-    const Vector& B = vertices[indices[id].vtxj];
-    const Vector& C = vertices[indices[id].vtxk];
+    Vector A = vertices[indices[id].vtxi], B = vertices[indices[id].vtxj], C = vertices[indices[id].vtxk];
+    Vector e1 = B - A, e2 = C - A, N = cross(e1, e2), crs = cross(A - r.O, r.u);
+    double dp = dot(r.u, N), b = dot(e2, crs) / dp, c = - dot(e1, crs) / dp, a = 1 - b - c, t = dot(A - r.O, N) / dp;
 
-    Vector e1 = B - A;
-    Vector e2 = C - A;
-
-    Vector N = cross(e1, e2);
-    double dp = dot(r.u, N);
-
-    if (std::abs(dp) < EPSILON) return false; 
-
-	Vector crs = cross(A - r.O, r.u);
-
-    double b = dot(e2, crs) / dp, c = - dot(e1, crs) / dp, a = 1 - b - c, t = dot(A - r.O, N) / dp;
-
-    if (b > EPSILON && c > EPSILON && a > EPSILON && t > EPSILON)
+    if (b > 0 && c > 0 && a > 0 && t > 0)
 	{
 		int_info.a = a; int_info.b = b; int_info.c = c; int_info.t = t; int_info.tri_id = id;
 		return true;
@@ -124,7 +95,7 @@ bool TriangleMesh::intersect_triangle(const Ray& r, Intersection& int_info, int 
 
 bool TriangleMesh::intersect(const Ray& r, Intersection& int_info) {
     Intersection best_int;
-    best_int.t = std::numeric_limits<double>::infinity();
+    best_int.t = INF;
 
     double bbox_t;
     if (!bvh.bbox.intersect(r, bbox_t)) return false;
@@ -135,7 +106,6 @@ bool TriangleMesh::intersect(const Ray& r, Intersection& int_info) {
     while (!visit.empty()) {
         BVH* curNode = visit.back();
         visit.pop_back();
-
         if (!curNode->left) {
 			Intersection current_int;
             for (int i = curNode->start; i < curNode->end; ++i) {
@@ -181,7 +151,7 @@ void TriangleMesh :: compute_bbox(Bbox& bx, int start, int end) {
         Vector B = vertices[indices[i].vtxj];
         Vector C = vertices[indices[i].vtxk];
 
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < 3; j++) {
             b.Bmin[j] = std::min({b.Bmin[j], A[j], B[j], C[j]});
             b.Bmax[j] = std::max({b.Bmax[j], A[j], B[j], C[j]});
         }
@@ -222,23 +192,10 @@ void TriangleMesh :: set_BVH() {
 }
 
 
-void TriangleMesh :: transform(const Vector& s, const Vector& t) {
-
-    for (auto& tri : indices) {
-		vertices[tri.vtxi] = comp_wise_mult(vertices[tri.vtxi], s) + t;
-		vertices[tri.vtxj] = comp_wise_mult(vertices[tri.vtxj], s) + t;
-		vertices[tri.vtxk] = comp_wise_mult(vertices[tri.vtxk], s) + t;
-
-		uvs[tri.uvi] = comp_wise_mult(uvs[tri.uvi], s);
-		uvs[tri.uvj] = comp_wise_mult(uvs[tri.uvj], s);
-		uvs[tri.uvk] = comp_wise_mult(uvs[tri.uvk], s);
-		
-		normals[tri.ni] = comp_wise_div(normals[tri.ni], s); normals[tri.ni].normalize();
-		normals[tri.nj] = comp_wise_div(normals[tri.nj], s); normals[tri.nj].normalize();
-		normals[tri.nk] = comp_wise_div(normals[tri.nk], s); normals[tri.nk].normalize();
-     
-    }
-
+void TriangleMesh :: transform(const double s, const Vector& t) {
+    for (auto v : vertices) {
+		v = s * v + t;
+	}
 }
 
 void TriangleMesh :: readOBJ(const char* obj) {

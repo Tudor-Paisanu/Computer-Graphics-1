@@ -17,11 +17,11 @@ int main() {
 	Camera cmr(Vector(0.0, 0.0, 55.0), M_PI/3, W, H);
 	Vector S(0.0, 50.0, 20.0);
 	Scene scene(cmr, S, 100000);
-	scene.bIndirect_Lighting = false;
+	scene.bIndirect_Lighting = true;
 
 	auto cat = std::make_shared<TriangleMesh>();
-	cat -> readOBJ("C:\\Users\\Tudor\\Desktop\\Computer Graphics\\Assigment 1\\cat_mesh\\demo.obj");
- 	//cat -> transform(Vector(0.6, 0.6, 0.6), Vector(0, -10, 0));
+	cat -> readOBJ("C:\\Users\\Tudor\\Desktop\\Computer Graphics\\Assigment 1\\cat_mesh\\cat.obj");
+ 	cat -> transform(0.6, Vector(0, -10, 0));
 	cat -> set_BVH();
 	cat -> material = OPAQUE;
 	// scene.add_object(Sphere(Vector(0, 0, 0), 7, Vector(0.8, 0.8, 0.8), Sphere :: Material (Sphere :: MIRROR)));
@@ -34,6 +34,8 @@ int main() {
 	scene.add_object(std::make_shared<Sphere>(Vector(0, 0, -1000), 940, Vector(0.4, 0.8, 0.7)));
 	scene.add_object(std::make_shared<Sphere>(Vector(0, -1000, 0), 990, Vector(0.6, 0.5, 0.1)));
 	scene.add_object(std::make_shared<Sphere>(Vector(0, 1000, 0), 940, Vector(0.9, 0.2, 0.9)));
+	scene.add_object(std::make_shared<Sphere>(Vector(-1000, 0, 0), 940, Vector(0.6, 0.5, 0.1)));
+	scene.add_object(std::make_shared<Sphere>(Vector(1000, 0, 0), 940, Vector(0.9, 0.2, 0.9)));
 
 	std::vector<unsigned char> image = scene.take_picture();
     stbi_write_png("image.png", W, H, 3, &image[0], 0);

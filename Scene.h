@@ -5,7 +5,6 @@
 #include "Vector.h"
 
 
-
 class Scene{
     public:
         std::vector<std::shared_ptr<Geometry>> objects;
